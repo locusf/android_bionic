@@ -182,7 +182,7 @@ libc_bionic_src_files := \
     bionic/sched_getcpu.cpp \
     bionic/send.cpp \
     bionic/setegid.cpp \
-    bionic/__set_errno.cpp \
+    bionic/__set_errno.c \
     bionic/seteuid.cpp \
     bionic/setpgrp.cpp \
     bionic/sigaction.cpp \
@@ -700,6 +700,34 @@ include $(BUILD_STATIC_LIBRARY)
 # automatically included.
 
 include $(CLEAR_VARS)
+# ========================================================
+# libdsyscalls.so
+# ========================================================
+
+include $(CLEAR_VARS)
+
+LOCAL_SRC_FILES := \
+	$(libc_arch_static_src_files) \
+	$(libc_static_common_src_files) \
+	bionic/dlmalloc.c \
+	bionic/malloc_debug_common.cpp \
+	bionic/__set_errno.c \
+	hybris/libdsyscalls.c
+
+LOCAL_C_INCLUDES := $(libc_common_c_includes)
+LOCAL_CFLAGS := $(libc_common_cflags)
+
+LOCAL_MODULE:= libdsyscalls
+
+LOCAL_SHARED_LIBRARIES := libdl
+LOCAL_WHOLE_STATIC_LIBRARIES := libc_common
+LOCAL_SYSTEM_SHARED_LIBRARIES :=
+
+LOCAL_LDFLAGS := -Wl,--exclude-libs=libgcc.a
+
+LOCAL_MODULE_TAGS := optional
+
+include $(BUILD_SHARED_LIBRARY)
 
 LOCAL_SRC_FILES := $(libc_upstream_netbsd_src_files)
 LOCAL_CFLAGS := \
@@ -1001,9 +1029,11 @@ LOCAL_CFLAGS := $(libc_common_cflags)
 LOCAL_CONLYFLAGS := $(libc_common_conlyflags)
 LOCAL_CPPFLAGS := $(libc_common_cppflags)
 LOCAL_C_INCLUDES := $(libc_common_c_includes)
+LOCAL_LDFLAGS := -Wl,--no-fatal-warnings
 LOCAL_SRC_FILES := \
     $(libc_arch_dynamic_src_files) \
     $(libc_static_common_src_files) \
+    bionic/__set_errno.c \
     bionic/malloc_debug_common.cpp \
     bionic/libc_init_dynamic.cpp \
     bionic/NetdClient.cpp \
@@ -1121,7 +1151,7 @@ LOCAL_MODULE := libc_malloc_debug_qemu
 LOCAL_CLANG := $(use_clang)
 LOCAL_ADDITIONAL_DEPENDENCIES := $(libc_common_additional_dependencies)
 
-LOCAL_SHARED_LIBRARIES := libc libdl
+LOCAL_SHARED_LIBRARIES := libc libdl libdsyscalls
 LOCAL_SYSTEM_SHARED_LIBRARIES :=
 
 # Don't install on release build

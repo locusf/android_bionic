@@ -117,23 +117,23 @@ static soinfo* g_ld_preloads[LDPRELOAD_MAX + 1];
 static void parse_library_path(const char *path, const char *delim)
 {
     size_t len;
-    char *ldpaths_bufp = gLdPathsBuffer;
+    char *ldpaths_bufp = g_ld_library_paths_buffer;
     int i = 0;
 
-    len = strlcpy(gLdPathsBuffer, path, sizeof(gLdPathsBuffer));
+    len = strlcpy(g_ld_library_paths_buffer, path, sizeof(g_ld_library_paths_buffer));
 
-    while (i < LDPATH_MAX && (gLdPaths[i] = strsep(&ldpaths_bufp, delim))) {
-        if (*gLdPaths[i] != '\0')
+    while (i < LDPATH_MAX && (g_ld_library_paths[i] = strsep(&ldpaths_bufp, delim))) {
+        if (*g_ld_library_paths[i] != '\0')
             ++i;
     }
 
     /* Forget the last path if we had to truncate; this occurs if the 2nd to
  *      * last char isn't '\0' (i.e. not originally a delim). */
-    if (i > 0 && len >= sizeof(gLdPathsBuffer) &&
-            gLdPathsBuffer[sizeof(gLdPathsBuffer) - 2] != '\0') {
-        gLdPaths[i - 1] = NULL;
+    if (i > 0 && len >= sizeof(g_ld_library_paths_buffer) &&
+            g_ld_library_paths_buffer[sizeof(g_ld_library_paths_buffer) - 2] != '\0') {
+        g_ld_library_paths[i - 1] = NULL;
     } else {
-        gLdPaths[i] = NULL;
+        g_ld_library_paths[i] = NULL;
     }
 }
 __LIBC_HIDDEN__ int g_ld_debug_verbosity;
@@ -753,7 +753,7 @@ static int open_library(const char* name) {
 #endif
   }
   // This allows us to run android apps in a Mer rootfs
-  if (getenv("HYBRIS_LD_LIBRARY_PATH") != NULL && *gLdPaths == 0)
+  if (getenv("HYBRIS_LD_LIBRARY_PATH") != NULL && *g_ld_library_paths == 0)
   {
     parse_library_path(getenv("HYBRIS_LD_LIBRARY_PATH"), ":");
   }
